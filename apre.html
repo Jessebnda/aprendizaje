@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collage Artístico: Literacidad Crítica</title>
+    <!-- Fuentes para simular escritura a mano, máquina de escribir y titulares -->
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Nanum+Pen+Script&family=Courier+Prime:wght@400;700&family=Anton&family=Special+Elite&family=Staatliches&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --shadow-paper: 5px 5px 15px rgba(0,0,0,0.3);
+            --tape-color: rgba(255, 255, 255, 0.4);
+        }
+
+        body {
+            background-color: #222;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Alineación superior para scrollear */
+            min-height: 100vh;
+            font-family: 'Nanum Pen Script', cursive;
+            overflow-x: hidden;
+        }
+
+        /* El Lienzo - AHORA MÁS ALTO (1200px) para que quepa todo sin amontonarse */
+        .canvas-board {
+            width: 900px;
+            height: 1300px; 
+            background-color: #e3d5c6;
+            background-image: 
+                radial-gradient(#b09f88 15%, transparent 16%),
+                radial-gradient(#b09f88 15%, transparent 16%);
+            background-size: 10px 10px;
+            background-position: 0 0, 5px 5px;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            overflow: hidden; 
+            border: 15px solid #fff;
+            flex-shrink: 0; /* Evita que se encoja */
+        }
+
+        /* Estilos comunes para los recortes */
+        .scrap {
+            position: absolute;
+            box-shadow: var(--shadow-paper);
+            padding: 15px;
+            transition: transform 0.2s, z-index 0s;
+            cursor: pointer;
+        }
+        
+        .scrap:hover {
+            z-index: 200 !important;
+            transform: scale(1.05) rotate(0deg) !important;
+            transition: transform 0.2s;
+        }
+
+        /* 1. TÍTULO */
+        .title-group {
+            top: 30px;
+            left: 50px;
+            z-index: 20;
+            transform: rotate(-3deg);
+            display: flex;
+            flex-wrap: wrap;
+            width: 700px;
+            cursor: pointer;
+        }
+        
+        .title-group:hover {
+            z-index: 200 !important;
+            transform: scale(1.02) rotate(-2deg);
+        }
+        
+        .letter-cutout {
+            background: #000;
+            color: #fff;
+            font-family: 'Anton', sans-serif;
+            font-size: 4rem;
+            padding: 5px 10px;
+            margin: 3px;
+            display: inline-block;
+            text-transform: uppercase;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.3);
+        }
+        .letter-cutout:nth-child(even) { background: #d32f2f; transform: rotate(3deg); }
+        .letter-cutout:nth-child(3n) { background: #1976d2; color: #fff; transform: rotate(-3deg); }
+        .letter-cutout:nth-child(4n) { background: #388e3c; transform: rotate(1deg); }
+
+        /* 2. DEFINICIÓN (Arriba Izquierda) */
+        .notebook-paper {
+            top: 180px;
+            left: 40px;
+            width: 280px;
+            background: #fff;
+            background-image: linear-gradient(#999 1px, transparent 1px);
+            background-size: 100% 1.5em;
+            padding: 20px 20px 20px 50px; 
+            font-size: 1.5rem;
+            line-height: 1.5em;
+            color: #333;
+            transform: rotate(2deg);
+            z-index: 5;
+            border-left: 2px solid #ff5252;
+            clip-path: polygon(2% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 15%, 5% 10%, 0% 5%);
+        }
+
+        .notebook-paper h3 {
+            font-family: 'Courier Prime', monospace;
+            text-decoration: underline;
+            margin: 0;
+            color: #000;
+        }
+
+        /* 3. IMAGEN POLAROID (Arriba Derecha) */
+        .polaroid-1 {
+            top: 200px;
+            right: 50px;
+            width: 220px;
+            background: white;
+            padding: 12px 12px 50px 12px;
+            transform: rotate(6deg);
+            z-index: 10;
+            text-align: center;
+        }
+        
+        .polaroid-img {
+            background: #222;
+            height: 180px;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .marker-text {
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.1rem;
+            color: #333;
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            text-align: center;
+        }
+
+        /* 4. NOTAS ADHESIVAS (Distribuidas verticalmente) */
+        .sticky-note {
+            background: #ffeb3b;
+            width: 150px;
+            height: 150px;
+            padding: 15px;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.2rem;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .sticky-1 { top: 380px; left: 350px; transform: rotate(-5deg); background: #ff4081; color: white; z-index: 15; }
+        .sticky-2 { top: 650px; right: 50px; transform: rotate(4deg); background: #00bcd4; color: white; z-index: 8; }
+        
+        .sticky-3 { top: 130px; right: 300px; transform: rotate(-10deg); background: #8bc34a; color: #222; width: 110px; height: 110px; z-index: 6; font-size: 1rem; }
+        
+        .sticky-4 { top: 480px; left: 20px; transform: rotate(-15deg); background: #ffa726; color: #fff; width: 100px; height: 100px; z-index: 4; font-size: 1.2rem; clip-path: polygon(0% 0%, 100% 0%, 100% 85%, 85% 100%, 0% 100%); }
+
+        /* 5. TARJETA INDEX (Centro Derecha) */
+        .index-card {
+            top: 480px;
+            right: 60px;
+            width: 280px;
+            height: 200px;
+            background: #fff;
+            background-image: linear-gradient(#b3e5fc 1px, transparent 1px);
+            background-size: 100% 20px;
+            border-top: 5px solid #0288d1;
+            padding: 20px;
+            transform: rotate(-2deg);
+            z-index: 7;
+            font-family: 'Nanum Pen Script', cursive;
+            font-size: 1.6rem;
+        }
+
+        /* 6. FUNDAMENTOS (Ahora más abajo para no chocar) */
+        .newspaper-scrap {
+            top: 600px; /* Posición clara */
+            left: 50px;
+            width: 260px;
+            background: #fdfbf7;
+            padding: 20px;
+            font-family: 'Times New Roman', serif;
+            color: #111;
+            transform: rotate(3deg);
+            z-index: 9;
+            border: 1px solid #ddd;
+        }
+        .newspaper-scrap h4 {
+            font-family: 'Anton', sans-serif;
+            text-transform: uppercase;
+            border-bottom: 2px solid #000;
+            margin-top: 0;
+            font-size: 1.4rem;
+        }
+        .newspaper-text {
+            font-size: 1rem;
+            text-align: justify;
+            line-height: 1.2;
+        }
+
+        /* 7. ELEMENTOS (Abajo Izquierda - Zona inferior) */
+        .kraft-paper {
+            top: 900px; /* Posición fija top */
+            left: 50px;
+            width: 280px;
+            background-color: #d7ccc8;
+            padding: 20px;
+            transform: rotate(-3deg);
+            z-index: 12;
+            border: 2px dashed #5d4037;
+        }
+        .kraft-paper ul { list-style: none; padding: 0; }
+        .kraft-paper li { font-size: 1.6rem; border-bottom: 1px solid #8d6e63; margin-bottom: 8px; }
+
+        /* 8. REFLEXIÓN (Abajo Derecha - Zona inferior) */
+        .typewriter-card {
+            top: 950px; /* Posición fija top */
+            right: 50px;
+            width: 350px;
+            background: #f5f5f5;
+            padding: 25px;
+            font-family: 'Special Elite', monospace;
+            font-size: 0.95rem;
+            transform: rotate(1deg);
+            z-index: 11;
+            border: 1px solid #999;
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.2);
+        }
+
+        /* 9. EXTRAS VISUALES */
+        
+        /* Ticket de Cine (Centro) */
+        .ticket-stub {
+            top: 800px;
+            left: 380px;
+            width: 160px;
+            background: #e57373;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-family: 'Staatliches', cursive;
+            transform: rotate(10deg);
+            z-index: 5;
+            border-left: 5px dotted rgba(0,0,0,0.2);
+            border-right: 5px dotted rgba(0,0,0,0.2);
+            font-size: 1.4rem;
+        }
+
+        /* Etiqueta redonda */
+        .badge-sticker {
+            top: 300px;
+            right: 320px;
+            width: 100px;
+            height: 100px;
+            background: #333;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-family: 'Courier Prime', monospace;
+            font-weight: bold;
+            transform: rotate(15deg);
+            z-index: 20;
+            border: 3px dashed #fff;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+        }
+
+        /* Cita rasgada (Fondo) */
+        .torn-paper-quote {
+            top: 850px;
+            right: 150px;
+            width: 220px;
+            background: #fff9c4;
+            padding: 15px;
+            font-family: 'Nanum Pen Script', cursive;
+            font-size: 1.8rem;
+            text-align: center;
+            transform: rotate(-5deg);
+            z-index: 4;
+        }
+
+        /* Polaroid pequeña extra (Abajo Centro) */
+        .polaroid-mini {
+            top: 1100px;
+            left: 400px;
+            width: 150px;
+            background: white;
+            padding: 10px 10px 35px 10px;
+            transform: rotate(-8deg);
+            z-index: 15;
+            text-align: center;
+            box-shadow: var(--shadow-paper);
+        }
+
+        /* REFERENCIAS APA (Al mero final) */
+        .apa-strip {
+            position: absolute;
+            top: 1240px; /* Al final del lienzo */
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.9);
+            padding: 8px 20px;
+            font-family: Arial, sans-serif;
+            font-size: 0.75rem;
+            width: 85%;
+            text-align: center;
+            z-index: 30;
+            border: 1px dashed #333;
+        }
+
+        /* Decoración: Cinta Adhesiva */
+        .tape {
+            position: absolute;
+            width: 90px;
+            height: 25px;
+            background: rgba(255, 255, 255, 0.5);
+            top: -12px;
+            left: 35%;
+            transform: rotate(-2deg);
+            border-left: 2px dotted rgba(255,255,255,0.3);
+            border-right: 2px dotted rgba(255,255,255,0.3);
+        }
+
+        .tape-corner {
+            width: 50px;
+            height: 20px;
+            background: rgba(255,255,255,0.5);
+            position: absolute;
+            top: -8px;
+            left: -12px;
+            transform: rotate(-45deg);
+        }
+
+        /* Decoración: Chincheta */
+        .pin {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: #d32f2f;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            box-shadow: 2px 2px 2px rgba(0,0,0,0.3);
+            z-index: 20;
+        }
+
+        /* Manchas */
+        .coffee-stain {
+            position: absolute;
+            top: 750px;
+            left: 300px;
+            width: 150px;
+            height: 150px;
+            border: 10px solid rgba(87, 57, 12, 0.1);
+            border-radius: 50%;
+            z-index: 1;
+            transform: scale(1.2);
+            pointer-events: none;
+        }
+
+        /* Responsividad para ajustar vista */
+        @media (max-width: 1000px) {
+            .canvas-board {
+                transform: scale(0.8);
+                transform-origin: top center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="canvas-board">
+        
+        <div class="coffee-stain"></div>
+
+        <!-- 1. TÍTULO -->
+        <div class="title-group" title="Literacidad Crítica">
+            <div class="letter-cutout">L</div>
+            <div class="letter-cutout">I</div>
+            <div class="letter-cutout">T</div>
+            <div class="letter-cutout">E</div>
+            <div class="letter-cutout">R</div>
+            <div class="letter-cutout">A</div>
+            <div class="letter-cutout">C</div>
+            <div class="letter-cutout">I</div>
+            <div class="letter-cutout">D</div>
+            <div class="letter-cutout">A</div>
+            <div class="letter-cutout">D</div>
+            <div style="width: 100%;"></div> 
+            <div class="letter-cutout" style="background:#fbc02d; color:black;">C</div>
+            <div class="letter-cutout" style="background:#fbc02d; color:black;">R</div>
+            <div class="letter-cutout" style="background:#fbc02d; color:black;">Í</div>
+            <div class="letter-cutout" style="background:#fbc02d; color:black;">T</div>
+            <div class="letter-cutout" style="background:#fbc02d; color:black;">I</div>
+            <div class="letter-cutout" style="background:#fbc02d; color:black;">C</div>
+            <div class="letter-cutout" style="background:#fbc02d; color:black;">A</div>
+        </div>
+
+        <!-- 2. DEFINICIÓN -->
+        <div class="scrap notebook-paper">
+            <div class="tape"></div>
+            <h3>Concepto:</h3>
+            <p>Capacidad de analizar y cuestionar textos y discursos.</p>
+            <p style="color: #d32f2f; font-weight:bold;">¡Va más allá de leer!</p>
+        </div>
+
+        <!-- 3. IMAGEN POLAROID 1 -->
+        <div class="scrap polaroid-1">
+            <div class="tape-corner"></div>
+            <div class="polaroid-img">
+                <span style="font-size: 4rem;">🧐🔍</span>
+            </div>
+            <div class="marker-text">¿Quién escribe?</div>
+        </div>
+
+        <!-- 4. NOTAS ADHESIVAS -->
+        <div class="scrap sticky-note sticky-1">
+            <div class="pin"></div>
+            Transformación<br>Social 🌍
+        </div>
+
+        <div class="scrap sticky-note sticky-2">
+            <div class="tape" style="top: -10px; background: rgba(0,0,0,0.1);"></div>
+            ¡No te dejes<br>manipular! 🚫
+        </div>
+        
+        <div class="scrap sticky-note sticky-3">
+            <div class="pin" style="background: blue;"></div>
+            Toma de<br>decisiones
+        </div>
+
+        <div class="scrap sticky-note sticky-4">
+            <div class="tape"></div>
+            <b>4 Elementos</b>
+        </div>
+
+        <!-- 5. TARJETA INDEX (Contextos) -->
+        <div class="scrap index-card">
+            <div class="tape"></div>
+            <span style="color: #0288d1; font-weight: bold; font-family:'Courier Prime'">CONTEXTOS A ANALIZAR:</span>
+            <ul>
+                <li>🏛️ Político</li>
+                <li>💰 Económico</li>
+                <li>🤝 Social</li>
+            </ul>
+        </div>
+
+        <!-- 6. FUNDAMENTOS (Periódico) -->
+        <div class="scrap newspaper-scrap">
+             <div class="tape" style="left: 60%; transform: rotate(10deg);"></div>
+            <h4>Fundamentos</h4>
+            <div class="newspaper-text">
+                <p>La literacidad tradicional se basa en 4 aspectos: <b>Comprensión lectora</b>, <b>Escritura</b>, <b>Uso funcional</b> y <b>Desarrollo continuo</b>. <br><br>Pero la versión CRÍTICA añade el cuestionamiento del poder.</p>
+            </div>
+        </div>
+
+        <!-- EXTRAS: Ticket y Sticker -->
+        <div class="scrap badge-sticker">
+            LECTURA<br>PROFUNDA
+        </div>
+
+        <div class="scrap ticket-stub">
+            ADMIT ONE<br>
+            <span style="font-size: 1rem; color: #ffebee;">Critical Thinking</span>
+        </div>
+
+        <div class="scrap torn-paper-quote">
+            "Leer es leer el mundo"
+            <br><small>- P. Freire</small>
+        </div>
+
+        <!-- 7. ELEMENTOS (Kraft Paper) -->
+        <div class="scrap kraft-paper">
+            <div class="tape" style="top: -15px; left: 40%; transform: rotate(5deg);"></div>
+            <h2 style="font-family: 'Anton'; margin: 0; text-align: center;">ELEMENTOS CLAVE</h2>
+            <ul>
+                <li>⚡ Análisis Crítico</li>
+                <li>⚡ Conciencia Social</li>
+                <li>⚡ Reflexión</li>
+                <li>⚡ Empoderamiento</li>
+            </ul>
+        </div>
+
+        <!-- 8. REFLEXIÓN (Máquina Escribir) -->
+        <div class="scrap typewriter-card">
+            <div class="tape" style="background: rgba(200, 200, 200, 0.5); width: 80px; left: 40%;"></div>
+            <strong style="text-decoration: underline;">MI REFLEXIÓN PERSONAL:</strong><br><br>
+            "Vivo la literacidad crítica a diario al navegar en redes sociales. Cuando veo una noticia alarmante, no la comparto de inmediato. Primero investigo la fuente y me pregunto: ¿Qué intención tiene el autor? Esto me empodera para no ser víctima de las 'Fake News'."
+        </div>
+
+        <!-- 9. POLAROID PARTICIPA (Abajo) -->
+        <div class="scrap polaroid-mini">
+            <div class="tape"></div>
+            <div class="polaroid-img" style="height: 100px; background:#444;">
+                <span style="font-size: 3rem;">📢</span>
+            </div>
+            <div class="marker-text" style="font-size: 1rem;">¡Participa!</div>
+        </div>
+
+        <!-- 10. REFERENCIAS APA -->
+        <div class="apa-strip">
+            <strong>Referencias:</strong> Aprendiendo a aprender con Abraham (2022). LITERACIDAD CRÍTICA. | Cassany, D. (2010). Aproximación a la literacidad crítica. | Cruz, O. (2020). ¿Qué es literacidad?
+        </div>
+
+    </div>
+
+</body>
+</html>
